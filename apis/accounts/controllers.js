@@ -16,24 +16,35 @@ const getAllAccounts = async (request, response) => {
     return response.status(500).json(error);
   }
 };
-const deleteAccount = (request, response) => {
-  const { id } = request.params;
-
-  const updatedAccounts = accounts.filter((account) => {
-    if (account.id != id) {
-      return true;
+const deleteAccount = async (request, response) => {
+  try {
+    const { id } = request.params;
+    if (!id) {
+      return response.status(404).json(error);
+    } else {
+      const deletedAccount = await accountSchema.findByIdAndDelete(id);
+      return response.status(200).json({ data: deletedAccount });
     }
-  });
-  return response.status(200).json({ data: updatedAccounts });
+  } catch (error) {
+    return response.status(500).json(error);
+  }
 };
 
 //the update isnt done yet
-const updateAccount = (request, response) => {
+const updateAccount = async (request, response) => {
   try {
-    const accountUpdate = accountSchema.findById();
-    return response.status(204).json({ data: accountUpdate });
+    const { id } = request.params;
+    if (!id) {
+      return response.status(404).json(error);
+    } else {
+      const accountUpdate = await accountSchema.findByIdAndUpdate(
+        id,
+        request.body
+      );
+      return response.status(204).json({ data: accountUpdate });
+    }
   } catch (error) {
-    return response.status(404).json(error);
+    return response.status(500).json(error);
   }
 };
 
